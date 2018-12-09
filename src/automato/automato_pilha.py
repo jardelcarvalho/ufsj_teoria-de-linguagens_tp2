@@ -71,46 +71,55 @@ class Automato(Grafo, Pilha):
             if self.estados[i].tipo == defs.INICIAL:
                 self.inicial = i
                 break
-        print('Tudo tranquilo !')
         pass
 
     def processa_fita(self, fita):
         self.esvazia()
-        fita_tam = len(fita)
-        fita_usada = 0
-        pilha_execucao = []
-        pilha_execucao.append([self.inicial, 0, 0, self.estados[self.inicial].n])
+        tam_fita, caminho, aceitou = len(fita), [], False
+        pilha_execucao = [[self.inicial, 0, 0, self.estados[self.inicial].n, None, None, 0]]
         while pilha_execucao != []:
-            c = pilha_execucao.pop()
-            for i in range(c[2], c[3]):
-                c[2] = i
-                if c[1] > fita_usada:
-                    fita_usada = c[1]
-                adj = self.estados[c[0]].adjacentes[i]
-                if c[1] < fita_tam:
-                    if adj.fita == fita[c[1]]:
-                        if adj.pilha == []:
-                            pilha_execucao.append(c)
-                            pilha_execucao.append([adj.dest, c[1] + 1, 0, self.estados[adj.dest].n])
-                            self.empilha(adj.empilhar)
-                        elif self.topo() == adj.pilha:
-                            pilha_execucao.append(c)
-                            pilha_execucao.append([adj.dest, c[1] + 1, 0, self.estados[adj.dest].n])
-                            self.desempilha()
-                            self.empilha(adj.empilhar)
-                elif adj.fita == defs.ACABOU and adj.pilha == defs.ACABOU:
-                    if self.pilha_vazia():
-                        if self.estados[adj.dest].tipo == defs.FINAL:
-                            pilha_execucao = []
-                            print('Aceitou')
-                        else:
-                            pilha_execucao.append(c)
-                            pilha_execucao.append([adj.dest, c[1], 0, self.estados[adj.dest].n])
-            print('Pilha de execução: ', pilha_execucao)
-            print('Pilha do automato: ', self.pilha, '\n')
-            pass
-        if self.pilha_vazia() and fita_tam == fita_usada:
-            return True
-        return False
-
-# estado, simbolo, transicao_ini, transicao_fim
+            e = pilha_execucao.pop()
+            if e[4] != None:
+                self.desempilha()
+            if e[5] != None:
+                self.empilha(e[5])
+            
+            # print('Pilha de execução: ', pilha_execucao)
+            # print('Tirado da pilha: ', e)
+            # print('Pilha do automato: ', self.pilha, '\n')
+            celulas = []
+            for i in range(e[2], e[3]):
+                e[2] = e[2] + 1
+                t = self.estados[e[0]].adjacentes[i]
+                if e[1] < tam_fita:
+                    if t.fita == fita[e[1]]:
+                        if t.pilha == []:
+                            celulas += [[t.dest, e[1] + 1, 0, self.estados[t.dest].n, None, t.empilhar, e[0]]]
+                        elif t.pilha == self.topo():
+                            celulas += [[t.dest, e[1] + 1, 0, self.estados[t.dest].n, self.topo(), t.empilhar, e[0]]]
+                if t.fita == []:
+                    if t.pilha == []:
+                        celulas += [[t.dest, e[1], 0, self.estados[t.dest].n, None, t.empilhar, e[0]]]
+                    elif t.pilha == self.topo():
+                        celulas += [[t.dest, e[1], 0, self.estados[t.dest].n, self.topo(), t.empilhar, e[0]]]
+                elif t.fita == defs.ACABOU and t.pilha == defs.ACABOU:                 
+                    if self.pilha_vazia() and e[1] == tam_fita and self.estados[t.dest].tipo == defs.FINAL:
+                        celulas += [[t.dest, e[1], 0, self.estados[t.dest].n, None, None, e[0]]]
+                        caminho = pilha_execucao + [e] + celulas
+                        pilha_execucao = []
+                        celulas = []
+                        aceitou = True
+            if celulas != []:
+                pilha_execucao += [e] + celulas
+            else:
+                if e[5] != None and e[5] != []:
+                    self.desempilha()
+                if e[4] != None:
+                    self.empilha(e[4])
+        return aceitou, caminho
+        
+# s, s
+# s, []
+# [], s
+# [], []
+# ??, ??
