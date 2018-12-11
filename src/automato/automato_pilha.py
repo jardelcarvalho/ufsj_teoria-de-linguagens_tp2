@@ -244,27 +244,24 @@ class Automato(Grafo, Pilha):
         # pilha_execução = [estado atual, 
         #                   posição na fita, 
         #                   índice do estado adjacente, 
-        #                   numero de adjacentes, item desempilhado, 
+        #                   numero de adjacentes, 
+        #                   item desempilhado, 
         #                   item a empilhar, 
         #                   índide do estado de origem]
         pilha_execucao = [[self.inicial, 0, 0, self.estados[self.inicial].n, None, None, 0]]
         while pilha_execucao != []:
             # Remove um elemento da pilha de execução
             e = pilha_execucao.pop()
-
             # Executa operações pendentes
             if e[4] != None:
                 self.desempilha()
             if e[5] != None:
                 self.empilha(e[5])
-            
             celulas = []
             for i in range(e[2], e[3]):
                 e[2] = e[2] + 1
-
                 # Seleciona a transição "i" a partir do estado de origem em "e[0]".
                 t = self.estados[e[0]].adjacentes[i]
-
                 # Verifica se a fita ainda não está no final.
                 if e[1] < tam_fita:
                     # Se não está no final verificar se o símbolo da fita bate com o da transição.
@@ -298,7 +295,6 @@ class Automato(Grafo, Pilha):
                         pilha_execucao = []
                         celulas = []
                         aceitou = True
-
             # Se existe uma transição que satisfaça o símbolo da fita e do topo da pilha.
             # Senão, realizar o backtracking e continuar a execução.
             if celulas != []:

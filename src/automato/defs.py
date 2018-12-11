@@ -1,4 +1,5 @@
 INICIAL = -1
 COMUM = 0
 FINAL = 1
+INICIAL_FINAL = 2
 ACABOU = '??'

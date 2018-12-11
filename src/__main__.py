@@ -1,68 +1,43 @@
 from automato.automato_pilha import Automato
-from automato import defs 
+from automato.leitura import Leitura
+from automato import defs
+import os
 
-class Estado_info:
-    def __init__(self, label, tipo):
-        self.label = label
-        self.tipo = tipo
-        pass
-    
-class Transicao_info:
-    def __init__(self, origem, fita, pilha, empilhar, dest):
-        self. origem = origem
-        self.fita = fita
-        self.pilha = pilha
-        self.empilhar = empilhar
-        self.dest = dest
-        pass
+#(a^n)(b^m)(a^(n + m)).txt
+#(a^n)(b^n).txt
+#(w)(w^r).txt
 
-# (a^n)(b^n)
-estados_info = []
-estados_info.append(Estado_info('q0', defs.INICIAL))
-estados_info.append(Estado_info('q1', defs.COMUM))
-estados_info.append(Estado_info('qf', defs.FINAL))
-transicoes_info = []
-transicoes_info.append(Transicao_info('q0', 'a', [], 'B', 'q0'))
-transicoes_info.append(Transicao_info('q0', 'b', 'B', [], 'q1'))
-transicoes_info.append(Transicao_info('q1', 'b', 'B', [], 'q1'))
-transicoes_info.append(Transicao_info('q1', defs.ACABOU, defs.ACABOU, [], 'qf'))
-transicoes_info.append(Transicao_info('q0', defs.ACABOU, defs.ACABOU, [], 'qf'))
-ap = Automato(estados_info, transicoes_info)
-print(ap.processa_fita('aaaaabbbbb'))
+def imprime_processamento(processamento, estados, palavra):
+    print('Aceitou: ', processamento[0])
+    strproc = ''
+    if processamento[0] == True:
+        for p in range(len(processamento[1]) - 1):
+            strproc += str(estados[processamento[1][p][0]].label) + '-->'
+        strproc += str(estados[processamento[1][len(processamento[1]) - 1][0]].label)
+        print(strproc)
 
-# w(w^r)
-# estados_info = []
-# estados_info.append(Estado_info('q0', defs.INICIAL))
-# estados_info.append(Estado_info('q1', defs.COMUM))
-# estados_info.append(Estado_info('qf', defs.FINAL))
-# transicoes_info = []
-# transicoes_info.append(Transicao_info('q0', 'a', [], 'a', 'q0'))
-# transicoes_info.append(Transicao_info('q0', 'b', [], 'b', 'q0'))
-# transicoes_info.append(Transicao_info('q0', [], [], [], 'q1'))
-# transicoes_info.append(Transicao_info('q1', 'a', 'a', [], 'q1'))
-# transicoes_info.append(Transicao_info('q1', 'b', 'b', [], 'q1'))
-# transicoes_info.append(Transicao_info('q1', defs.ACABOU, defs.ACABOU, [], 'qf'))
-# ap = Automato(estados_info, transicoes_info)
-# print(ap.processa_fita('aabbaa'))
+def menu():
+    executar = True
+    while executar:
+        print('Automato de Pilha\n-Obs: arquivos de entrada no formato foobar.txt')
+        arq = input('Arquivo de descrição: ')
+        l = Leitura(arq)
+        estados_info, transicoes_info = l.get_info_automato()
+        ap = Automato(estados_info, transicoes_info)
+        processar = True
+        while processar:
+            palavra = input('Palavra: ')
+            imprime_processamento(ap.processa_fita(palavra), ap.estados, palavra)
+            opt = input('\n(1) Repetir, (2) Encerrar: ')
+            if(opt == '1'):
+                processar = True
+            elif(opt == '2'):
+                processar = False
+        opt = input('(1) Outro arquivo de descrição, (2) Encerrar: ')
+        if(opt == '1'):
+            executar = True
+        elif(opt == '2'):
+            executar = False
+        os.system('clear')
 
-# (a^n)(b^m)(a^(n + m))
-# estados_info = []
-# estados_info.append(Estado_info('q0', defs.INICIAL))
-# estados_info.append(Estado_info('q1', defs.COMUM))
-# estados_info.append(Estado_info('q2', defs.COMUM))
-# estados_info.append(Estado_info('qf', defs.FINAL))
-# transicoes_info = []
-# transicoes_info.append(Transicao_info('q0', 'a', [], 'X', 'q0'))
-# transicoes_info.append(Transicao_info('q0', [], [], [], 'q1'))
-# transicoes_info.append(Transicao_info('q1', 'b', [], 'X', 'q1'))
-# transicoes_info.append(Transicao_info('q1', [], [], [], 'q2'))
-# transicoes_info.append(Transicao_info('q2', 'a', 'X', [], 'q2'))
-# transicoes_info.append(Transicao_info('q2', defs.ACABOU, defs.ACABOU, [], 'qf'))
-# ap = Automato(estados_info, transicoes_info)
-# print(ap.processa_fita('abbaaa'))
-
-for e in ap.estados:
-    print(e.label)
-    for t in e.adjacentes:
-        print(t.fita, ', ', t.pilha, ', ', t.empilhar, ', ', t.dest)
-    print('\n')
+menu()
