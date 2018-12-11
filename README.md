@@ -34,8 +34,13 @@
 # Exemplo
 ## Abaixo segue um exemplo de um automato que processa palavras do tipo (a^n)(b^n) | n>=0
 q0,q1,qf q0 qf
+
 q0 a [] B q0
+
 q0 b B [] q1
+
 q1 b B [] q1
+
 q1 ? ? [] qf
+
 q0 ? ? [] qf
